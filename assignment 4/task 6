@@ -1,0 +1,179 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Abstract base class
+class Vehicle {
+protected:
+    string registrationNumber;
+    double dailyRate;
+    bool rented;
+
+public:
+    Vehicle(string reg, double rate)
+        : registrationNumber(reg),
+          dailyRate(rate), rented(false) {}
+
+    virtual double calculateCharge(int days) const = 0;
+
+    virtual void display() const {
+        cout << "Registration: "
+             << registrationNumber << endl;
+
+        cout << "Daily Rate: "
+             << dailyRate << endl;
+
+        cout << "Status: "
+             << (rented ? "Rented" : "Available") << endl;
+    }
+
+    void rent() {
+        if (!rented) {
+            rented = true;
+            cout << registrationNumber
+                 << " rented successfully\n";
+        }
+        else {
+            cout << "Vehicle already rented\n";
+        }
+    }
+
+    void returnVehicle() {
+        if (rented) {
+            rented = false;
+            cout << registrationNumber
+                 << " returned successfully\n";
+        }
+        else {
+            cout << "Vehicle was not rented\n";
+        }
+    }
+
+    virtual ~Vehicle() = default;
+};
+
+// Bicycle class
+class Bicycle : public Vehicle {
+public:
+    Bicycle(string reg, double rate)
+        : Vehicle(reg, rate) {}
+
+    double calculateCharge(int days) const override {
+        return dailyRate * days;
+    }
+};
+
+// Two-wheeler class
+class TwoWheeler : public Vehicle {
+protected:
+    double fuelLevel;
+    string serviceDate;
+
+public:
+    TwoWheeler(string reg, double rate,
+               double fuel, string date)
+        : Vehicle(reg, rate),
+          fuelLevel(fuel), serviceDate(date) {}
+
+    double calculateCharge(int days) const override {
+        return dailyRate * days + 100;
+    }
+};
+
+// Car class
+class Car : public Vehicle {
+protected:
+    int seatingCapacity;
+    double fuelLevel;
+    string serviceDate;
+
+public:
+    Car(string reg, double rate, int seats,
+        double fuel, string date)
+        : Vehicle(reg, rate),
+          seatingCapacity(seats),
+          fuelLevel(fuel), serviceDate(date) {}
+
+    double calculateCharge(int days) const override {
+        return dailyRate * days + 200;
+    }
+};
+
+// Electric Car class
+class ElectricCar : public Vehicle {
+protected:
+    double batteryCapacity;
+    double chargePerKwh;
+
+public:
+    ElectricCar(string reg, double rate,
+                double battery, double charge)
+        : Vehicle(reg, rate),
+          batteryCapacity(battery),
+          chargePerKwh(charge) {}
+
+    double calculateCharge(int days) const override {
+        return dailyRate * days +
+               batteryCapacity * chargePerKwh;
+    }
+};
+
+// New vehicle type
+class ElectricBus : public Vehicle {
+private:
+    int seatingCapacity;
+    double batteryCapacity;
+
+public:
+    ElectricBus(string reg, double rate,
+                int seats, double battery)
+        : Vehicle(reg, rate),
+          seatingCapacity(seats),
+          batteryCapacity(battery) {}
+
+    double calculateCharge(int days) const override {
+        return dailyRate * days +
+               batteryCapacity * 5 + seatingCapacity * 10;
+    }
+};
+
+int main() {
+    Vehicle* fleet[5];
+
+    fleet[0] = new Bicycle("BIKE101", 100);
+    fleet[1] = new TwoWheeler(
+        "BIKE202", 200, 5, "10-12-2026"
+    );
+    fleet[2] = new Car(
+        "CAR303", 1000, 5, 10, "15-12-2026"
+    );
+    fleet[3] = new ElectricCar(
+        "EV404", 1500, 50, 8
+    );
+    fleet[4] = new ElectricBus(
+        "BUS505", 3000, 30, 100
+    );
+
+    cout << "VEHICLE RENTAL FLEET\n";
+
+    for (int i = 0; i < 5; i++) {
+        cout << "\nVehicle " << i + 1 << endl;
+
+        fleet[i]->display();
+
+        fleet[i]->rent();
+
+        cout << "Rental Charge for 3 days: "
+             << fleet[i]->calculateCharge(3)
+             << endl;
+
+        fleet[i]->returnVehicle();
+    }
+
+    // Release allocated memory
+    for (int i = 0; i < 5; i++) {
+        delete fleet[i];
+    }
+
+    return 0;
+}
