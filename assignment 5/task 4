@@ -1,0 +1,170 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <memory>
+#include <stdexcept>
+using namespace std;
+
+class Bill {
+protected:
+    string patient;
+
+public:
+    Bill(const string& p) : patient(p) {}
+
+    virtual ~Bill() = default;
+
+    virtual double total() const = 0;
+    virtual string type() const = 0;
+
+    void print() const {
+        cout << type() << " - " << patient
+             << " - Amount: " << total() << '\n';
+    }
+};
+
+class OutPatient : public Bill {
+    double consultation, tests;
+
+public:
+    OutPatient(const string& p, double c, double t)
+        : Bill(p), consultation(c), tests(t) {}
+
+    double total() const override {
+        return consultation + tests;
+    }
+
+    string type() const override {
+        return "OutPatient";
+    }
+};
+
+class InPatient : public Bill {
+    int days;
+    double rate, surgery;
+
+public:
+    InPatient(const string& p, int d, double r, double s)
+        : Bill(p), days(d), rate(r), surgery(s) {}
+
+    double total() const override {
+        return days * rate + surgery;
+    }
+
+    string type() const override {
+        return "InPatient";
+    }
+};
+
+class DayCareBill : public Bill {
+    double packagePrice;
+
+public:
+    DayCareBill(const string& p, double price)
+        : Bill(p), packagePrice(price) {}
+
+    double total() const override {
+        return packagePrice;
+    }
+
+    string type() const override {
+        return "DayCare";
+    }
+};
+
+// New bill type
+class CorporateBill : public Bill {
+    double serviceCharge, discount;
+
+public:
+    CorporateBill(const string& p, double charge, double disc)
+        : Bill(p), serviceCharge(charge), discount(disc) {
+        if (charge < 0 || disc < 0 || disc > charge)
+            throw invalid_argument("Invalid corporate bill");
+    }
+
+    double total() const override {
+        return serviceCharge - discount;
+    }
+
+    string type() const override {
+        return "CorporateBill";
+    }
+};
+
+class Payer {
+public:
+    virtual ~Payer() = default;
+    virtual double amountCovered(const Bill& bill) const = 0;
+};
+
+class SelfPay : public Payer {
+public:
+    double amountCovered(const Bill& bill) const override {
+        return bill.total();
+    }
+};
+
+class Insurance : public Payer {
+    double limit;
+
+public:
+    Insurance(double l) : limit(l) {}
+
+    double amountCovered(const Bill& bill) const override {
+        return min(bill.total(), limit);
+    }
+};
+
+// New payer
+class CorporatePayer : public Payer {
+    double coveragePercentage;
+
+public:
+    CorporatePayer(double percentage)
+        : coveragePercentage(percentage) {
+        if (percentage < 0 || percentage > 100)
+            throw invalid_argument("Invalid coverage percentage");
+    }
+
+    double amountCovered(const Bill& bill) const override {
+        return bill.total() * coveragePercentage / 100.0;
+    }
+};
+
+int main() {
+    try {
+        vector<unique_ptr<Bill>> bills;
+
+        bills.push_back(make_unique<OutPatient>("Ravi", 500, 1200));
+        bills.push_back(make_unique<InPatient>("Meena", 3, 2500, 40000));
+        bills.push_back(make_unique<DayCareBill>("Arun", 25000));
+
+        // New bill added without changing existing bill classes
+        bills.push_back(make_unique<CorporateBill>("Priya", 30000, 5000));
+
+        SelfPay self;
+        Insurance insurance(50000);
+
+        // New payer added without changing existing payer classes
+        CorporatePayer corporate(80);
+
+        for (const auto& bill : bills) {
+            bill->print();
+
+            cout << "Self Pay: "
+                 << self.amountCovered(*bill) << '\n';
+
+            cout << "Insurance: "
+                 << insurance.amountCovered(*bill) << '\n';
+
+            cout << "Corporate: "
+                 << corporate.amountCovered(*bill) << "\n\n";
+        }
+    }
+    catch (const exception& e) {
+        cerr << "Error: " << e.what() << '\n';
+    }
+
+    return 0;
+}
