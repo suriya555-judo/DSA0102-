@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+class Book {
+private:
+    string title;
+    string author;
+    int copies;
+
+public:
+    // Default constructor
+    Book() : Book("Untitled", "Unknown", 0) {}
+
+    // Constructor for donated book
+    explicit Book(string t) : Book(t, "Unknown", 1) {}
+
+    // Parameterized constructor
+    Book(string t, string a, int c)
+        : title(t), author(a), copies(c) {
+        if (copies < 0) {
+            throw invalid_argument("Copies cannot be negative");
+        }
+    }
+
+    // Display book details
+    void display() const {
+        cout << "Title: " << title << endl;
+        cout << "Author: " << author << endl;
+        cout << "Copies: " << copies << endl;
+        cout << "-------------------" << endl;
+    }
+};
+
+int main() {
+    try {
+        Book b1;
+        Book b2("The Guide");
+        Book b3("Ponniyin Selvan", "Kalki", 5);
+
+        cout << "Book 1:" << endl;
+        b1.display();
+
+        cout << "Book 2:" << endl;
+        b2.display();
+
+        cout << "Book 3:" << endl;
+        b3.display();
+
+        // Uncomment to test negative copies
+        // Book b4("Invalid Book", "Author", -2);
+
+    }
+    catch (const exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
