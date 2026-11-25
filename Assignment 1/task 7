@@ -1,0 +1,62 @@
+#include <iostream>
+using namespace std;
+
+constexpr long long MIN_BALANCE = 5000;
+
+// Procedural approach
+
+bool canTravel(long long balance, long long fare) {
+    return balance - fare >= MIN_BALANCE;
+}
+
+void deduct(long long& balance, long long fare) {
+    if (canTravel(balance, fare)) {
+        balance -= fare;
+    }
+}
+
+// Object-oriented approach
+
+class SmartCard {
+private:
+    long long balance;
+
+public:
+    SmartCard(long long b) {
+        balance = b;
+    }
+
+    bool canTravel(long long fare) {
+        return fare >= 0 && balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+        if (canTravel(fare)) {
+            balance -= fare;
+            return true;
+        }
+        return false;
+    }
+
+    long long getBalance() {
+        return balance;
+    }
+};
+
+int main() {
+    long long balance = 10000;
+    long long fare = 3000;
+
+    if (canTravel(balance, fare)) {
+        deduct(balance, fare);
+        cout << "Procedural balance: " << balance << endl;
+    }
+
+    SmartCard card(10000);
+
+    if (card.deduct(fare)) {
+        cout << "OOP balance: " << card.getBalance() << endl;
+    }
+
+    return 0;
+}
