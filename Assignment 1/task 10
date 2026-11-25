@@ -1,0 +1,44 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+    long long journeys[] = {
+        20000,
+        500000,
+        3000000
+    };
+
+    long long farePaise = 1010;
+    double fareRupees = 10.10;
+
+    cout << fixed << setprecision(2);
+
+    for (long long n : journeys) {
+        long long integerTotal = n * farePaise;
+
+        double doubleTotal = 0;
+
+        for (long long i = 0; i < n; i++) {
+            doubleTotal += fareRupees;
+        }
+
+        cout << "Journeys: " << n << endl;
+
+        cout << "Integer total Rs: "
+             << integerTotal / 100.0 << endl;
+
+        cout << "Double total Rs: "
+             << doubleTotal << endl;
+
+        cout << "Difference Rs: "
+             << doubleTotal - integerTotal / 100.0
+             << endl << endl;
+    }
+
+    long long total = 3000000LL * 3000LL;
+
+    cout << "Network total: " << total << " paise" << endl;
+
+    return 0;
+}
