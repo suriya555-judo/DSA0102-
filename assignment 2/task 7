@@ -1,0 +1,79 @@
+#include <iostream>
+using namespace std;
+
+const int LIMIT = 10;
+
+// Original design using shifting
+class ShiftHistory {
+private:
+    int data[LIMIT]{};
+    int count = 0;
+
+public:
+    void add(int value) {
+        if (count < LIMIT) {
+            data[count++] = value;
+        }
+        else {
+            for (int i = 1; i < LIMIT; ++i) {
+                data[i - 1] = data[i];
+            }
+
+            data[LIMIT - 1] = value;
+        }
+    }
+
+    void display() const {
+        for (int i = 0; i < count; ++i) {
+            cout << data[i] << ' ';
+        }
+
+        cout << '\n';
+    }
+};
+
+// Redesigned solution using circular indexing
+class CircularHistory {
+private:
+    int data[LIMIT]{};
+    int count = 0;
+    int next = 0;
+
+public:
+    void add(int value) {
+        data[next] = value;
+
+        next = (next + 1) % LIMIT;
+
+        if (count < LIMIT)
+            ++count;
+    }
+
+    void display() const {
+        int start = (count == LIMIT) ? next : 0;
+
+        for (int i = 0; i < count; ++i) {
+            cout << data[(start + i) % LIMIT] << ' ';
+        }
+
+        cout << '\n';
+    }
+};
+
+int main() {
+    ShiftHistory original;
+    CircularHistory redesigned;
+
+    for (int i = 1; i <= 15; ++i) {
+        original.add(i);
+        redesigned.add(i);
+    }
+
+    cout << "Original shift history:\n";
+    original.display();
+
+    cout << "Redesigned circular history:\n";
+    redesigned.display();
+
+    return 0;
+}
