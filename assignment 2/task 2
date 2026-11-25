@@ -1,0 +1,65 @@
+#include <iostream>
+using namespace std;
+
+int& highestMark(int marks[], int size) {
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; ++i) {
+        if (marks[i] > marks[highestIndex]) {
+            highestIndex = i;
+        }
+    }
+
+    return marks[highestIndex];
+}
+
+const int& highestMarkReadOnly(const int marks[], int size) {
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; ++i) {
+        if (marks[i] > marks[highestIndex]) {
+            highestIndex = i;
+        }
+    }
+
+    return marks[highestIndex];
+}
+
+int highestMarkIndex(const int marks[], int size) {
+    int highestIndex = 0;
+
+    for (int i = 1; i < size; ++i) {
+        if (marks[i] > marks[highestIndex]) {
+            highestIndex = i;
+        }
+    }
+
+    return highestIndex;
+}
+
+// Dangerous example: never use a reference to a local variable.
+// int& badReference() {
+//     int local = 50;
+//     return local;
+// }
+
+int main() {
+    int marks[] = {78, 91, 84, 88, 95, 73};
+
+    int size = sizeof(marks) / sizeof(marks[0]);
+
+    cout << "Highest mark: "
+         << highestMarkReadOnly(marks, size) << '\n';
+
+    highestMark(marks, size) += 2;
+
+    cout << "After moderation: "
+         << highestMarkReadOnly(marks, size) << '\n';
+
+    int index = highestMarkIndex(marks, size);
+
+    cout << "Highest mark index: " << index << '\n';
+    cout << "Value using index: " << marks[index] << '\n';
+
+    return 0;
+}
