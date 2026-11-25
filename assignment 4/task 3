@@ -1,0 +1,115 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Address {
+private:
+    string city;
+    int pin;
+
+public:
+    Address(string c, int p) : city(c), pin(p) {
+        cout << "Address Constructor\n";
+    }
+
+    ~Address() {
+        cout << "Address Destructor\n";
+    }
+
+    string str() const {
+        return city + "-" + to_string(pin);
+    }
+};
+
+class Person {
+protected:
+    string name;
+    int age;
+    Address address;
+
+public:
+    Person(string n, int a, string city, int pin)
+        : name(n), age(a), address(city, pin) {
+        cout << "Person Constructor\n";
+    }
+
+    virtual ~Person() {
+        cout << "Person Destructor\n";
+    }
+};
+
+class Course {
+private:
+    string courseName;
+
+public:
+    Course(string c) : courseName(c) {
+        cout << "Course Constructor\n";
+    }
+
+    ~Course() {
+        cout << "Course Destructor\n";
+    }
+
+    string getCourse() const {
+        return courseName;
+    }
+};
+
+class Student : public Person {
+private:
+    long long regNo;
+    Course course;
+
+public:
+    Student(string n, int a, long long r,
+            string city, int pin, string c)
+        : Person(n, a, city, pin),
+          regNo(r), course(c) {
+        cout << "Student Constructor\n";
+    }
+
+    void print() const {
+        cout << regNo << " " << name
+             << " (" << age << ") "
+             << address.str() << " "
+             << course.getCourse() << endl;
+    }
+
+    ~Student() {
+        cout << "Student Destructor\n";
+    }
+};
+
+class Staff : public Person {
+private:
+    double salary;
+
+public:
+    Staff(string n, int a, string city, int pin, double s)
+        : Person(n, a, city, pin), salary(s) {
+        cout << "Staff Constructor\n";
+    }
+
+    ~Staff() {
+        cout << "Staff Destructor\n";
+    }
+};
+
+int main() {
+    cout << "Student Object:\n";
+
+    {
+        Student s("Kavya", 19, 192311001,
+                  "Salem", 636001, "C++");
+        s.print();
+    }
+
+    cout << "\nStaff Object:\n";
+
+    {
+        Staff st("Arun", 40, "Chennai", 600001, 50000);
+    }
+
+    return 0;
+}
