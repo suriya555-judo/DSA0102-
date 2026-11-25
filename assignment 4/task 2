@@ -1,0 +1,100 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+protected:
+    string name;
+    int id;
+    string phone;
+
+public:
+    Person(string n, int i, string p)
+        : name(n), id(i), phone(p) {
+        cout << "Person ";
+    }
+
+    virtual ~Person() = default;
+};
+
+class Student : virtual public Person {
+protected:
+    string programme;
+    double cgpa;
+
+public:
+    Student(string n, int i, string p, string prog, double c)
+        : Person(n, i, p), programme(prog), cgpa(c) {
+        cout << "Student ";
+    }
+};
+
+class Staff : virtual public Person {
+protected:
+    string department;
+    double salary;
+
+public:
+    Staff(string n, int i, string p, string d, double s)
+        : Person(n, i, p), department(d), salary(s) {
+        cout << "Staff ";
+    }
+};
+
+class TeachingAssistant : public Student, public Staff {
+public:
+    TeachingAssistant(string n, int i, string p,
+                      string prog, double c,
+                      string d, double s)
+        : Person(n, i, p),
+          Student(n, i, p, prog, c),
+          Staff(n, i, p, d, s) {
+        cout << "TeachingAssistant ";
+    }
+
+    void display() const {
+        cout << "\nName: " << name;
+        cout << "\nID: " << id;
+        cout << "\nProgramme: " << programme;
+        cout << "\nCGPA: " << cgpa;
+        cout << "\nDepartment: " << department;
+        cout << "\nSalary: " << salary << endl;
+    }
+};
+
+class ResearchScholar : public Student {
+private:
+    double fellowship;
+
+public:
+    ResearchScholar(string n, int i, string p,
+                    string prog, double c, double f)
+        : Person(n, i, p),
+          Student(n, i, p, prog, c),
+          fellowship(f) {}
+
+    void display() const {
+        cout << "\nResearch Scholar: " << name;
+        cout << "\nProgramme: " << programme;
+        cout << "\nCGPA: " << cgpa;
+        cout << "\nFellowship: " << fellowship << endl;
+    }
+};
+
+int main() {
+    TeachingAssistant ta(
+        "Kavya", 101, "9876543210",
+        "CSE", 8.9, "IT", 30000
+    );
+
+    ta.display();
+
+    ResearchScholar rs(
+        "Arun", 102, "9876501234",
+        "CSE", 9.2, 15000
+    );
+
+    rs.display();
+
+    return 0;
+}
