@@ -1,0 +1,117 @@
+#include <iostream>
+#include <cmath>
+#include <stdexcept>
+using namespace std;
+
+class Complex {
+private:
+    double real;
+    double imaginary;
+
+public:
+    // Default constructor
+    Complex() : real(0), imaginary(0) {}
+
+    // Constructor with real part
+    Complex(double r) : real(r), imaginary(0) {}
+
+    // Constructor with real and imaginary parts
+    Complex(double r, double i) : real(r), imaginary(i) {}
+
+    // Addition operator
+    Complex operator+(const Complex& other) const {
+        return Complex(
+            real + other.real,
+            imaginary + other.imaginary
+        );
+    }
+
+    // Subtraction operator
+    Complex operator-(const Complex& other) const {
+        return Complex(
+            real - other.real,
+            imaginary - other.imaginary
+        );
+    }
+
+    // Multiplication operator
+    Complex operator*(const Complex& other) const {
+        return Complex(
+            real * other.real - imaginary * other.imaginary,
+            real * other.imaginary + imaginary * other.real
+        );
+    }
+
+    // Division operator
+    Complex operator/(const Complex& other) const {
+        double denominator =
+            other.real * other.real +
+            other.imaginary * other.imaginary;
+
+        if (denominator == 0) {
+            throw runtime_error("Division by zero impedance");
+        }
+
+        return Complex(
+            (real * other.real + imaginary * other.imaginary) / denominator,
+            (imaginary * other.real - real * other.imaginary) / denominator
+        );
+    }
+
+    // Equality operator
+    bool operator==(const Complex& other) const {
+        return real == other.real &&
+               imaginary == other.imaginary;
+    }
+
+    // Calculate magnitude
+    double magnitude() const {
+        return sqrt(real * real + imaginary * imaginary);
+    }
+
+    // Display complex number
+    friend ostream& operator<<(ostream& out, const Complex& c) {
+        out << c.real;
+
+        if (c.imaginary >= 0)
+            out << " + " << c.imaginary << "j";
+        else
+            out << " - " << -c.imaginary << "j";
+
+        return out;
+    }
+};
+
+int main() {
+    try {
+        Complex resistor(10, 0);
+        Complex inductor(0, 5);
+        Complex capacitor(0, -2);
+
+        // Series impedance
+        Complex series = resistor + inductor + capacitor;
+
+        cout << "Series Impedance: " << series << endl;
+        cout << "Series Magnitude: " << series.magnitude() << endl;
+
+        // Parallel impedance
+        Complex z1(10, 5);
+        Complex z2(8, -2);
+
+        Complex parallel = (z1 * z2) / (z1 + z2);
+
+        cout << "Parallel Impedance: " << parallel << endl;
+        cout << "Parallel Magnitude: " << parallel.magnitude() << endl;
+
+        // Division by zero test
+        Complex zero(0, 0);
+        Complex result = z1 / zero;
+
+        cout << result << endl;
+    }
+    catch (const exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
