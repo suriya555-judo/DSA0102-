@@ -1,0 +1,111 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+class Time {
+private:
+    int seconds;
+
+public:
+    Time(int s = 0) : seconds(s >= 0 ? s : 0) {}
+
+    // Prefix increment
+    Time& operator++() {
+        ++seconds;
+        return *this;
+    }
+
+    // Postfix increment
+    Time operator++(int) {
+        Time old = *this;
+        ++seconds;
+        return old;
+    }
+
+    bool operator==(const Time& other) const {
+        return seconds == other.seconds;
+    }
+
+    bool operator<(const Time& other) const {
+        return seconds < other.seconds;
+    }
+
+    void display() const {
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+
+        cout << h << ":" << m << ":" << s;
+    }
+};
+
+class Playlist {
+private:
+    vector<string> tracks;
+
+public:
+    Playlist(initializer_list<string> songs) : tracks(songs) {}
+
+    // Non-constant subscript operator
+    string& operator[](int index) {
+        if (index < 0 || index >= static_cast<int>(tracks.size())) {
+            throw out_of_range("Invalid playlist index");
+        }
+
+        return tracks[index];
+    }
+
+    // Constant subscript operator
+    const string& operator[](int index) const {
+        if (index < 0 || index >= static_cast<int>(tracks.size())) {
+            throw out_of_range("Invalid playlist index");
+        }
+
+        return tracks[index];
+    }
+
+    int size() const {
+        return static_cast<int>(tracks.size());
+    }
+};
+
+int main() {
+    Time t(3599);
+
+    Time a = t++;
+    Time b = ++t;
+
+    cout << "Postfix value: ";
+    a.display();
+
+    cout << "\nPrefix value: ";
+    b.display();
+
+    cout << "\nCurrent time: ";
+    t.display();
+
+    cout << endl;
+
+    Playlist songs = {
+        "Song One",
+        "Song Two",
+        "Song Three"
+    };
+
+    try {
+        for (int i = 0; i < songs.size(); i++) {
+            cout << songs[i] << endl;
+        }
+
+        // Uncomment to test invalid index
+        // cout << songs[-1];
+
+    }
+    catch (const out_of_range& e) {
+        cout << e.what() << endl;
+    }
+
+    return 0;
+}
