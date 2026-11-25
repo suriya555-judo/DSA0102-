@@ -1,0 +1,75 @@
+#include <iostream>
+using namespace std;
+
+class Account {
+public:
+    virtual double rate() const {
+        return 3.5;
+    }
+
+    virtual double vrate() const {
+        return 3.5;
+    }
+
+    virtual ~Account() {
+        cout << "Account Destructor\n";
+    }
+};
+
+class SeniorAccount : public Account {
+private:
+    double* history;
+
+public:
+    SeniorAccount() {
+        history = new double[100];
+        cout << "Senior Account Created\n";
+    }
+
+    double rate() const override {
+        return 4.0;
+    }
+
+    double vrate() const override {
+        return 4.0;
+    }
+
+    ~SeniorAccount() override {
+        delete[] history;
+        cout << "Senior Account Destructor\n";
+    }
+};
+
+int main() {
+    Account* accounts[2] = {
+        new Account(),
+        new SeniorAccount()
+    };
+
+    cout << "Interest Rates:\n";
+
+    for (Account* a : accounts) {
+        cout << a->rate() << endl;
+    }
+
+    cout << "\nVirtual Interest Rates:\n";
+
+    for (Account* a : accounts) {
+        cout << a->vrate() << endl;
+    }
+
+    cout << "\nDeleting Accounts:\n";
+
+    for (Account* a : accounts) {
+        delete a;
+    }
+
+    cout << "\nObject Slicing Demonstration:\n";
+
+    SeniorAccount senior;
+    Account copy = senior;
+
+    cout << copy.vrate() << endl;
+
+    return 0;
+}
