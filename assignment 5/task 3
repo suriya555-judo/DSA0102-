@@ -1,0 +1,197 @@
+#include <iostream>
+#include <vector>
+#include <variant>
+#include <chrono>
+#include <stdexcept>
+using namespace std;
+using namespace chrono;
+
+class Bill {
+public:
+    virtual ~Bill() = default;
+    virtual double total() const = 0;
+};
+
+class OPBill : public Bill {
+    double consultation, tests;
+
+public:
+    OPBill(double c, double t) : consultation(c), tests(t) {}
+
+    double total() const override {
+        return consultation + tests;
+    }
+};
+
+class IPBill : public Bill {
+    int days;
+    double rate, surgery;
+
+public:
+    IPBill(int d, double r, double s)
+        : days(d), rate(r), surgery(s) {}
+
+    double total() const override {
+        return days * rate + surgery;
+    }
+};
+
+struct SwitchBill {
+    int type;
+    double a, b, c;
+
+    double total() const {
+        switch (type) {
+        case 1:
+            return a + b;
+        case 2:
+            return a * b + c;
+        default:
+            return 0;
+        }
+    }
+};
+
+struct VariantOP {
+    double consultation, tests;
+
+    double total() const {
+        return consultation + tests;
+    }
+};
+
+struct VariantIP {
+    int days;
+    double rate, surgery;
+
+    double total() const {
+        return days * rate + surgery;
+    }
+};
+
+using VariantBill = variant<VariantOP, VariantIP>;
+
+double variantTotal(const VariantBill& bill) {
+    return visit([](const auto& b) {
+        return b.total();
+    }, bill);
+}
+
+bool validateReturnCode(double amount) {
+    return amount >= 0;
+}
+
+bool validateException(double amount) {
+    if (amount < 0)
+        throw invalid_argument("Negative amount");
+
+    return true;
+}
+
+int main() {
+    const int N = 1000000;
+
+    vector<unique_ptr<Bill>> virtualBills;
+    vector<SwitchBill> switchBills;
+    vector<VariantBill> variantBills;
+
+    for (int i = 0; i < N; i++) {
+        if (i % 2 == 0) {
+            virtualBills.push_back(make_unique<OPBill>(500, 1200));
+            switchBills.push_back({1, 500, 1200, 0});
+            variantBills.push_back(VariantOP{500, 1200});
+        }
+        else {
+            virtualBills.push_back(make_unique<IPBill>(3, 2500, 40000));
+            switchBills.push_back({2, 3, 2500, 40000});
+            variantBills.push_back(VariantIP{3, 2500, 40000});
+        }
+    }
+
+    double virtualSum = 0;
+    double switchSum = 0;
+    double variantSum = 0;
+
+    auto start = steady_clock::now();
+
+    for (const auto& b : virtualBills)
+        virtualSum += b->total();
+
+    auto end = steady_clock::now();
+
+    cout << "Virtual Total: " << virtualSum << '\n';
+    cout << "Virtual Time: "
+         << duration_cast<milliseconds>(end - start).count()
+         << " ms\n";
+
+    start = steady_clock::now();
+
+    for (const auto& b : switchBills)
+        switchSum += b.total();
+
+    end = steady_clock::now();
+
+    cout << "Switch Total: " << switchSum << '\n';
+    cout << "Switch Time: "
+         << duration_cast<milliseconds>(end - start).count()
+         << " ms\n";
+
+    start = steady_clock::now();
+
+    for (const auto& b : variantBills)
+        variantSum += variantTotal(b);
+
+    end = steady_clock::now();
+
+    cout << "Variant Total: " << variantSum << '\n';
+    cout << "Variant Time: "
+         << duration_cast<milliseconds>(end - start).count()
+         << " ms\n";
+
+    cout << "\nException and Return Code Comparison\n";
+
+    for (int invalidPercent : {0, 1, 50}) {
+        int invalidCount = N * invalidPercent / 100;
+
+        start = steady_clock::now();
+
+        int validCount = 0;
+
+        for (int i = 0; i < N; i++) {
+            double amount = (i < invalidCount) ? -100 : 1000;
+
+            if (validateReturnCode(amount))
+                validCount++;
+        }
+
+        end = steady_clock::now();
+
+        cout << invalidPercent << "% invalid - Return Code: "
+             << duration_cast<milliseconds>(end - start).count()
+             << " ms, Valid: " << validCount << '\n';
+
+        start = steady_clock::now();
+
+        validCount = 0;
+
+        for (int i = 0; i < N; i++) {
+            double amount = (i < invalidCount) ? -100 : 1000;
+
+            try {
+                if (validateException(amount))
+                    validCount++;
+            }
+            catch (const exception&) {
+                // Invalid claim handled here.
+            }
+        }
+
+        end = steady_clock::now();
+
+        cout << invalidPercent << "% invalid - Exceptions: "
+             << duration_cast<milliseconds>(end - start).count()
+             << " ms, Valid: " << validCount << '\n';
+    }
+
+    return 0;
+}
