@@ -1,0 +1,32 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+
+int main() {
+    bool peak = true;
+    char zone = 'M';
+    int hour = 9;
+    long long balance = 12500;
+    unsigned int zoneNumber = 2;
+    long long journeys = 3000000;
+    double amount = 125.50;
+
+    cout << "Bool size: " << sizeof(peak) << endl;
+    cout << "Char size: " << sizeof(zone) << endl;
+    cout << "Int size: " << sizeof(hour) << endl;
+    cout << "Long long size: " << sizeof(balance) << endl;
+    cout << "Unsigned int size: " << sizeof(zoneNumber) << endl;
+    cout << "Double size: " << sizeof(amount) << endl;
+
+    cout << "INT Minimum: " << INT_MIN << endl;
+    cout << "INT Maximum: " << INT_MAX << endl;
+
+    cout << "Balance: " << balance << " paise" << endl;
+    cout << "Daily journeys: " << journeys << endl;
+
+    long long total = journeys * 3000LL;
+
+    cout << "Total collection: " << total << " paise" << endl;
+
+    return 0;
+}
